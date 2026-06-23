@@ -23,12 +23,29 @@ apt install -y \
   python3 \
   python3-pil \
   python3-dev \
+  python3-pip \
   swig \
   cython3 \
   python3-setuptools \
   python3-wheel
 
-cd /home/pi || exit 1
+# Resolve the directory containing this script. If it's sitting inside a
+# PiMatrixOS checkout (i.e. launcher.py is right next to it), use that as
+# the install dir; otherwise clone a fresh copy next to the script.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -f "$SCRIPT_DIR/launcher.py" ]; then
+  PIMATRIXOS_DIR="$SCRIPT_DIR"
+else
+  cd "$SCRIPT_DIR" || exit 1
+  echo "==> Installing PiMatrixOS..."
+  if [ ! -d pimatrixos ]; then
+    git clone https://github.com/dominikelektricar/pimatrixos.git
+  fi
+  PIMATRIXOS_DIR="$SCRIPT_DIR/pimatrixos"
+fi
+
+cd "$SCRIPT_DIR" || exit 1
 
 echo "==> Installing rpi-rgb-led-matrix..."
 if [ ! -d rpi-rgb-led-matrix ]; then
@@ -38,23 +55,17 @@ fi
 cd rpi-rgb-led-matrix
 make
 
-cd bindings/python
-make build-python
-python3 setup.py install
+# The Python bindings are installed via pip from the repo root (the old
+# "make build-python && setup.py install" flow in bindings/python no
+# longer exists upstream).
+pip install . --break-system-packages
 
-cd /home/pi || exit 1
-
-echo "==> Installing PiMatrixOS..."
-if [ ! -d pimatrixos ]; then
-  git clone https://github.com/dominikelektricar/pimatrixos.git
-fi
-
-cd pimatrixos
+cd "$PIMATRIXOS_DIR" || exit 1
 chmod +x launcher.py
 
 echo
 echo "✅ PiMatrixOS installation complete."
 echo
 echo "To start PiMatrixOS:"
-echo "  cd ~/pimatrixos"
+echo "  cd $PIMATRIXOS_DIR"
 echo "  sudo python3 launcher.py"

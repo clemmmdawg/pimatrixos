@@ -8,7 +8,7 @@
 # - START or SELECT: open menu
 # - Menu: UP/DOWN select, OK confirm/toggle/edit, BACK cancel/close
 #
-# Config: /home/pi/pimatrixos/config.json
+# Config: <repo>/config.json
 #   postcode: "10000"
 #   dash_autoscroll: true/false
 #   dash_autodim: true/false
@@ -36,8 +36,9 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions
 PIXEL_MAPPER = "U-mapper;StackToRow:Z;Rotate:180"
 W, H = 128, 64
 
-CONFIG_PATH = "/home/pi/pimatrixos/config.json"
-LAUNCHER_PATH = "/home/pi/pimatrixos/launcher.py"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+LAUNCHER_PATH = os.path.join(BASE_DIR, "launcher.py")
 
 # Weather
 WEATHER_REFRESH_SEC = 15 * 60  # 15 min cache

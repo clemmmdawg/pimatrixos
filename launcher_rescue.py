@@ -6,6 +6,9 @@ import subprocess
 import errno
 import fcntl
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APPS_DIR = os.path.join(BASE_DIR, "apps")
+
 JS_DEV = "/dev/input/js0"
 START_BTN = 9
 SELECT_BTN = 8
@@ -22,7 +25,7 @@ def log(msg: str):
 
 def kill_apps():
     subprocess.run(
-        ["pkill", "-f", "/home/pi/led/apps/"],
+        ["pkill", "-f", APPS_DIR + "/"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )

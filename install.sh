@@ -23,6 +23,7 @@ apt install -y \
   python3 \
   python3-pil \
   python3-dev \
+  python3-pip \
   swig \
   cython3 \
   python3-setuptools \
@@ -54,9 +55,10 @@ fi
 cd rpi-rgb-led-matrix
 make
 
-cd bindings/python
-make build-python
-python3 setup.py install
+# The Python bindings are installed via pip from the repo root (the old
+# "make build-python && setup.py install" flow in bindings/python no
+# longer exists upstream).
+pip install . --break-system-packages
 
 cd "$PIMATRIXOS_DIR" || exit 1
 chmod +x launcher.py

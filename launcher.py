@@ -5,7 +5,8 @@
 # + Kill other apps on launcher start (optional; see kill_other_led_apps)
 #
 # Run:
-#   sudo python3 /home/pi/pimatrixos/launcher.py
+#   sudo python3 launcher.py
+# (works regardless of the working directory it's run from)
 
 import os
 import time
@@ -26,7 +27,9 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions
 PIXEL_MAPPER = "U-mapper;StackToRow:Z;Rotate:180"
 W, H = 128, 64
 
-CONFIG_PATH = "/home/pi/pimatrixos/config.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APPS_DIR = os.path.join(BASE_DIR, "apps")
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
 DEFAULT_BRIGHTNESS = 60
 BRIGHTNESS_MIN = 10
@@ -43,14 +46,14 @@ USB_POLL_SEC = 0.7
 Action = Union[str, List[str], dict]
 
 APPS_MENU: List[Tuple[str, Action]] = [
-    ("ANIMATION", ["python3", "/home/pi/pimatrixos/apps/anim_player.py"]),
-    ("SLIDESHOW", ["python3", "/home/pi/pimatrixos/apps/slideshow.py"]),
-    ("DASHBOARD", ["python3", "/home/pi/pimatrixos/apps/dashboard.py"]),
-    ("HOME ASSISTANT", ["python3", "/home/pi/pimatrixos/apps/ha_matrix.py"]),
-    ("PONG", ["python3", "/home/pi/pimatrixos/apps/pong.py"]),
-    ("SNAKE", ["python3", "/home/pi/pimatrixos/apps/snake.py"]),
-    ("PAC-MAN", ["python3", "/home/pi/pimatrixos/apps/pacman.py"]),
-    ("TETRIS", ["python3", "/home/pi/pimatrixos/apps/tetris.py"]),
+    ("ANIMATION", ["python3", os.path.join(APPS_DIR, "anim_player.py")]),
+    ("SLIDESHOW", ["python3", os.path.join(APPS_DIR, "slideshow.py")]),
+    ("DASHBOARD", ["python3", os.path.join(APPS_DIR, "dashboard.py")]),
+    ("HOME ASSISTANT", ["python3", os.path.join(APPS_DIR, "ha_matrix.py")]),
+    ("PONG", ["python3", os.path.join(APPS_DIR, "pong.py")]),
+    ("SNAKE", ["python3", os.path.join(APPS_DIR, "snake.py")]),
+    ("PAC-MAN", ["python3", os.path.join(APPS_DIR, "pacman.py")]),
+    ("TETRIS", ["python3", os.path.join(APPS_DIR, "tetris.py")]),
     ("SETTINGS", "submenu:settings"),
 ]
 
@@ -224,12 +227,12 @@ def draw_brightness_bar(img: Image.Image, x: int, y: int, w: int, h: int, bright
 # =========================
 def kill_other_led_apps():
     """
-    Kill any running LED apps in /home/pi/pimatrixos/apps, and any OTHER launcher.py instances.
+    Kill any running LED apps in APPS_DIR, and any OTHER launcher.py instances.
     Does NOT kill the current process.
     """
     # kill apps
     subprocess.run(
-        ["pkill", "-f", "/home/pi/pimatrixos/apps/"],
+        ["pkill", "-f", APPS_DIR + "/"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -237,7 +240,7 @@ def kill_other_led_apps():
     # kill other launcher.py instances (exclude self PID)
     try:
         mypid = os.getpid()
-        out = subprocess.check_output(["pgrep", "-f", "/home/pi/pimatrixos/launcher.py"], text=True)
+        out = subprocess.check_output(["pgrep", "-f", os.path.join(BASE_DIR, "launcher.py")], text=True)
         for line in out.splitlines():
             try:
                 pid = int(line.strip())

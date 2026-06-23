@@ -6,7 +6,8 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions
 PIXEL_MAPPER = "U-mapper;StackToRow:Z;Rotate:180"
 W, H = 128, 64
 
-CONFIG_PATH = "/home/pi/pimatrixos/ha_config.json"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_PATH = os.path.join(BASE_DIR, "ha_config.json")
 
 DEFAULT = {
     "ha_url": "http://homeassistant.local:8123",
